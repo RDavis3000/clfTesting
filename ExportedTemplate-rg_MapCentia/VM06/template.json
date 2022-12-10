@@ -1,0 +1,138 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_CFR_AZU_APP06_name": {
+            "defaultValue": "CFR-AZU-APP06",
+            "type": "String"
+        },
+        "networkInterfaces_cfr_azu_app06824_name": {
+            "defaultValue": "cfr-azu-app06824",
+            "type": "String"
+        },
+        "virtualNetworks_vn_cfr_azu_externalid": {
+            "defaultValue": "/subscriptions/c5c08118-927a-44f1-bb69-1b804148a0d2/resourceGroups/rg_network/providers/Microsoft.Network/virtualNetworks/vn_cfr_azu",
+            "type": "String"
+        },
+        "applicationGateways_ag_metabase_externalid": {
+            "defaultValue": "/subscriptions/c5c08118-927a-44f1-bb69-1b804148a0d2/resourceGroups/rg_MapCentia/providers/Microsoft.Network/applicationGateways/ag_metabase",
+            "type": "String"
+        },
+        "networkSecurityGroups_CFR_AZU_APP06_nsg_externalid": {
+            "defaultValue": "/subscriptions/c5c08118-927a-44f1-bb69-1b804148a0d2/resourceGroups/rg_MapCentia/providers/Microsoft.Network/networkSecurityGroups/CFR-AZU-APP06-nsg",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2022-05-01",
+            "name": "[parameters('networkInterfaces_cfr_azu_app06824_name')]",
+            "location": "australiaeast",
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_cfr_azu_app06824_name')), '/ipConfigurations/ipconfig1')]",
+                        "etag": "W/\"e111bf8d-76de-4fc0-8276-b289fc66670f\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "10.0.1.19",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_vn_cfr_azu_externalid'), '/subnets/Server')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "applicationGatewayBackendAddressPools": [
+                                {
+                                    "id": "[concat(parameters('applicationGateways_ag_metabase_externalid'), '/backendAddressPools/devstage_backend')]"
+                                },
+                                {
+                                    "id": "[concat(parameters('applicationGateways_ag_metabase_externalid'), '/backendAddressPools/fc_backend')]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "networkSecurityGroup": {
+                    "id": "[parameters('networkSecurityGroups_CFR_AZU_APP06_nsg_externalid')]"
+                },
+                "nicType": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2022-08-01",
+            "name": "[parameters('virtualMachines_CFR_AZU_APP06_name')]",
+            "location": "australiaeast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_cfr_azu_app06824_name'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2ms"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18.04-LTS",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "[concat(parameters('virtualMachines_CFR_AZU_APP06_name'), '_disk1_572d4bcdba444e97af391e8cbb4a556b')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_CFR_AZU_APP06_name'), '_disk1_572d4bcdba444e97af391e8cbb4a556b'))]"
+                        },
+                        "diskSizeGB": 30
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_CFR_AZU_APP06_name')]",
+                    "adminUsername": "a-admin",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "provisionVMAgent": true,
+                        "patchSettings": {
+                            "patchMode": "ImageDefault",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_cfr_azu_app06824_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}
