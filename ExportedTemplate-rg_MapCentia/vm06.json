@@ -1,0 +1,82 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "virtualMachines_CFR_AZU_APP06_name": {
+          "defaultValue": "CFR-AZU-APP06",
+          "type": "String"
+      },
+      "disks_CFR_AZU_APP06_disk1_572d4bcdba444e97af391e8cbb4a556b_externalid": {
+          "defaultValue": "/subscriptions/c5c08118-927a-44f1-bb69-1b804148a0d2/resourceGroups/rg_MapCentia/providers/Microsoft.Compute/disks/CFR-AZU-APP06_disk1_572d4bcdba444e97af391e8cbb4a556b",
+          "type": "String"
+      },
+      "networkInterfaces_cfr_azu_app06824_externalid": {
+          "defaultValue": "/subscriptions/c5c08118-927a-44f1-bb69-1b804148a0d2/resourceGroups/rg_MapCentia/providers/Microsoft.Network/networkInterfaces/cfr-azu-app06824",
+          "type": "String"
+      }
+  },
+  "variables": {},
+  "resources": [
+      {
+          "type": "Microsoft.Compute/virtualMachines",
+          "apiVersion": "2022-08-01",
+          "name": "[parameters('virtualMachines_CFR_AZU_APP06_name')]",
+          "location": "australiaeast",
+          "identity": {
+              "type": "SystemAssigned"
+          },
+          "properties": {
+              "hardwareProfile": {
+                  "vmSize": "Standard_B2ms"
+              },
+              "storageProfile": {
+                  "imageReference": {
+                      "publisher": "Canonical",
+                      "offer": "UbuntuServer",
+                      "sku": "18.04-LTS",
+                      "version": "latest"
+                  },
+                  "osDisk": {
+                      "osType": "Linux",
+                      "name": "[concat(parameters('virtualMachines_CFR_AZU_APP06_name'), '_disk1_572d4bcdba444e97af391e8cbb4a556b')]",
+                      "createOption": "FromImage",
+                      "caching": "ReadWrite",
+                      "managedDisk": {
+                          "storageAccountType": "Premium_LRS",
+                          "id": "[parameters('disks_CFR_AZU_APP06_disk1_572d4bcdba444e97af391e8cbb4a556b_externalid')]"
+                      },
+                      "diskSizeGB": 30
+                  },
+                  "dataDisks": []
+              },
+              "osProfile": {
+                  "computerName": "[parameters('virtualMachines_CFR_AZU_APP06_name')]",
+                  "adminUsername": "a-admin",
+                  "linuxConfiguration": {
+                      "disablePasswordAuthentication": false,
+                      "provisionVMAgent": true,
+                      "patchSettings": {
+                          "patchMode": "ImageDefault",
+                          "assessmentMode": "ImageDefault"
+                      }
+                  },
+                  "secrets": [],
+                  "allowExtensionOperations": true,
+                  "requireGuestProvisionSignal": true
+              },
+              "networkProfile": {
+                  "networkInterfaces": [
+                      {
+                          "id": "[parameters('networkInterfaces_cfr_azu_app06824_externalid')]"
+                      }
+                  ]
+              },
+              "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                      "enabled": true
+                  }
+              }
+          }
+      }
+  ]
+}

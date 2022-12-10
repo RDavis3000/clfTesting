@@ -1,0 +1,1870 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "applicationGateways_ag_metabase_name": {
+            "defaultValue": "ag_metabase",
+            "type": "String"
+        },
+        "virtualNetworks_vn_cfr_azu_externalid": {
+            "defaultValue": "/subscriptions/c5c08118-927a-44f1-bb69-1b804148a0d2/resourceGroups/rg_network/providers/Microsoft.Network/virtualNetworks/vn_cfr_azu",
+            "type": "String"
+        },
+        "publicIPAddresses_ag_metabase_ip_pub_externalid": {
+            "defaultValue": "/subscriptions/c5c08118-927a-44f1-bb69-1b804148a0d2/resourceGroups/rg_MapCentia/providers/Microsoft.Network/publicIPAddresses/ag_metabase_ip_pub",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/applicationGateways",
+            "apiVersion": "2022-01-01",
+            "name": "[parameters('applicationGateways_ag_metabase_name')]",
+            "location": "australiaeast",
+            "properties": {
+                "sku": {
+                    "name": "WAF_v2",
+                    "tier": "WAF_v2"
+                },
+                "gatewayIPConfigurations": [
+                    {
+                        "name": "appGatewayIpConfig",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/gatewayIPConfigurations/appGatewayIpConfig')]",
+                        "properties": {
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_vn_cfr_azu_externalid'), '/subnets/ag_subnet')]"
+                            }
+                        }
+                    }
+                ],
+                "sslCertificates": [
+                    {
+                        "name": "wildcard.climatefriendly.com",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]",
+                        "properties": {}
+                    }
+                ],
+                "trustedRootCertificates": [],
+                "trustedClientCertificates": [],
+                "sslProfiles": [],
+                "frontendIPConfigurations": [
+                    {
+                        "name": "appGwPublicFrontendIp",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[parameters('publicIPAddresses_ag_metabase_ip_pub_externalid')]"
+                            }
+                        }
+                    }
+                ],
+                "frontendPorts": [
+                    {
+                        "name": "port_443",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]",
+                        "properties": {
+                            "port": 443
+                        }
+                    },
+                    {
+                        "name": "port_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]",
+                        "properties": {
+                            "port": 80
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "ag_Backend",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/ag_Backend')]",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    },
+                    {
+                        "name": "crm_Backend",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/crm_Backend')]",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    },
+                    {
+                        "name": "crmdev_backend",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/crmdev_backend')]",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    },
+                    {
+                        "name": "qgis_backend",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/qgis_backend')]",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    },
+                    {
+                        "name": "devstage_backend",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/devstage_backend')]",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    },
+                    {
+                        "name": "fc_backend",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/fc_backend')]",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    },
+                    {
+                        "name": "stage_backend",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/stage_backend')]",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    },
+                    {
+                        "name": "globe_backend",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/globe_backend')]",
+                        "properties": {
+                            "backendAddresses": [
+                                {
+                                    "ipAddress": "10.0.4.4"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "loadDistributionPolicies": [],
+                "backendHttpSettingsCollection": [
+                    {
+                        "name": "metabase_http",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/metabase_http')]",
+                        "properties": {
+                            "port": 3000,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 60
+                        }
+                    },
+                    {
+                        "name": "crmdev_http_settings",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/crmdev_http_settings')]",
+                        "properties": {
+                            "port": 80,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 60
+                        }
+                    },
+                    {
+                        "name": "cc_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/cc_https')]",
+                        "properties": {
+                            "port": 9080,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "hostName": "creditcounter.climatefriendly.com",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 60,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "hasura_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/hasura_https')]",
+                        "properties": {
+                            "port": 9090,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "hostName": "gql.climatefriendly.com",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 60,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "qgis_http_settings",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/qgis_http_settings')]",
+                        "properties": {
+                            "port": 80,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 20
+                        }
+                    },
+                    {
+                        "name": "crm_http_settings",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/crm_http_settings')]",
+                        "properties": {
+                            "port": 80,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 180
+                        }
+                    },
+                    {
+                        "name": "creditcounter_dev_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/creditcounter_dev_https')]",
+                        "properties": {
+                            "port": 9080,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "hostName": "creditcounter-dev.climatefriendly.com",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 60,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "hasura_dev_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/hasura_dev_https')]",
+                        "properties": {
+                            "port": 9090,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 60,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "metabase_dev_http",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/metabase_dev_http')]",
+                        "properties": {
+                            "port": 3001,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 20
+                        }
+                    },
+                    {
+                        "name": "creditcounter_stage_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/creditcounter_stage_https')]",
+                        "properties": {
+                            "port": 9080,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 20,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "hasura_stage_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/hasura_stage_https')]",
+                        "properties": {
+                            "port": 9090,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 20,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "metabase_stage_http",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/metabase_stage_http')]",
+                        "properties": {
+                            "port": 3001,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 20
+                        }
+                    },
+                    {
+                        "name": "retool_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/retool_https')]",
+                        "properties": {
+                            "port": 5000,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "hostName": "retool.climatefriendly.com",
+                            "pickHostNameFromBackendAddress": false,
+                            "requestTimeout": 600,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "retool_dev_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/retool_dev_https')]",
+                        "properties": {
+                            "port": 3000,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "requestTimeout": 600
+                        }
+                    },
+                    {
+                        "name": "retool_stage_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/retool_stage_https')]",
+                        "properties": {
+                            "port": 3000,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "requestTimeout": 600
+                        }
+                    },
+                    {
+                        "name": "fc_dev_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/fc_dev_https')]",
+                        "properties": {
+                            "port": 9081,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "requestTimeout": 600,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "fc_stage_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/fc_stage_https')]",
+                        "properties": {
+                            "port": 9081,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "requestTimeout": 600,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "globe_http",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/globe_http')]",
+                        "properties": {
+                            "port": 8080,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "requestTimeout": 90,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/globe-probe')]"
+                            }
+                        }
+                    }
+                ],
+                "backendSettingsCollection": [],
+                "httpListeners": [
+                    {
+                        "name": "ac_crm_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ac_crm_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "crm.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_crmdev_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_crmdev_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "crmdev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_crmdev_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_crmdev_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "crmdev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_crm_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_crm_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "crm.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_cc_80_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_80_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "creditcounter.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "metabase.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_listener_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_listener_https')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "gql.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_retool_listener_https",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_listener_https')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "retool.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_retool_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "retool.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_qgis_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_qgis_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "qgis.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_qgis_listener_443",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_qgis_listener_443')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "qgis.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_cc_dev_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_dev_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "creditcounter-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_cc_dev_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_dev_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "creditcounter-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_retool_dev_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_dev_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "retool-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_dev_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_dev_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "gql-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_dev_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_dev_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "gql-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('applicationGateways_ag_metabase_name'), '_dev_listener')]",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_dev_listener'))]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "metabase-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('applicationGateways_ag_metabase_name'), '_dev_listener_80')]",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_dev_listener_80'))]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "metabase-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_retool_dev_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_dev_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "retool-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "gql.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_cc_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "creditcounter.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_fcdev_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_fcdev_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "fc-dev.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_fcstage_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_fcstage_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "fc-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_retool_stage_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_stage_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "retool-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('applicationGateways_ag_metabase_name'), '_stage_listener')]",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_stage_listener'))]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "metabase-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_stage",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_stage')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "gql-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_cc_stage_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_stage_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "creditcounter-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    },
+                    {
+                        "name": "ag_fcstage_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_fcstage_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "fc-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "af_retool_stage_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/af_retool_stage_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "retool-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('applicationGateways_ag_metabase_name'), '_stage_listener_80')]",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_stage_listener_80'))]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "metabase-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_stage_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_stage_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "gql-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_cc_stage_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_stage_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "creditcounter-stage.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_globe_listener_80",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_globe_listener_80')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostName": "globe.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    },
+                    {
+                        "name": "ag_globe_listener",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_globe_listener')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/sslCertificates/wildcard.climatefriendly.com')]"
+                            },
+                            "hostName": "globe.climatefriendly.com",
+                            "hostNames": [],
+                            "requireServerNameIndication": true
+                        }
+                    }
+                ],
+                "listeners": [],
+                "urlPathMaps": [],
+                "requestRoutingRules": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_ag_metabase_name'), '_routing_rule')]",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/requestRoutingRules/', parameters('applicationGateways_ag_metabase_name'), '_routing_rule'))]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 10,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/ag_Backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/metabase_http')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_crm_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_crm_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 20,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ac_crm_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/crm_Backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/crm_http_settings')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_crmdev_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_crmdev_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 30,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_crmdev_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/crmdev_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/crmdev_http_settings')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_crmdev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_crmdev_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 40,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_crmdev_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_crmdev_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_crm_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_crm_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 50,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_crm_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_crm_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_cc_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_cc_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 60,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_80_listener')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_cc_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ac_cc_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ac_cc_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 70,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/ag_Backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/cc_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ac_hasura_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ac_hasura_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 80,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_listener_https')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/ag_Backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/hasura_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_hasura_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 90,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_hasura_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_retool_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 100,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_listener_https')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/ag_Backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/retool_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_globe_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_globe_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 101,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_globe_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_globe_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_globe_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_globe_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 102,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_globe_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/globe_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/globe_http')]"
+                            },
+                            "rewriteRuleSet": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/rewriteRuleSets/globe-rewrite')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_retool_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 110,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_retool_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_qgis_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_qgis_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 120,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_qgis_listener_443')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/qgis_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/qgis_http_settings')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_qgis_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_qgis_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 130,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_qgis_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_qgis_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_cc_dev_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_cc_dev_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 140,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_dev_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/devstage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/creditcounter_dev_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ac_cc_dev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ac_cc_dev_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 150,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_dev_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ac_cc_dev_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_dev_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_hasura_dev_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 160,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_dev_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/devstage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/hasura_dev_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_retool_dev_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_dev_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 170,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_dev_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/devstage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/retool_dev_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('applicationGateways_ag_metabase_name'), '_dev_rule')]",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/requestRoutingRules/', parameters('applicationGateways_ag_metabase_name'), '_dev_rule'))]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 180,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_dev_listener'))]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/devstage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/metabase_dev_http')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "metabase_dev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/metabase_dev_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 190,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_dev_listener_80'))]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/metabase_dev_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_dev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_hasura_dev_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 200,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_dev_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_hasura_dev_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_retool_dev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_dev_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 210,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_dev_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_retool_dev_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_fc_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_fc_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 220,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_fcdev_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/fc_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/fc_dev_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_cc_stage_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_cc_stage_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 230,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_stage_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/stage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/creditcounter_stage_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_cc_stage_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_cc_stage_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 240,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_stage_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_cc_stage_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_stage_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_hasura_stage_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 250,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_stage')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/stage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/hasura_stage_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_stage_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_hasura_stage_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 260,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_stage_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_hasura_stage_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_retool_stage_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_stage_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 270,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_stage_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/stage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/retool_stage_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('applicationGateways_ag_metabase_name'), '_stage_rule')]",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/requestRoutingRules/', parameters('applicationGateways_ag_metabase_name'), '_stage_rule'))]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 280,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_stage_listener'))]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/stage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/metabase_stage_http')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('applicationGateways_ag_metabase_name'), '_stage_80_rule')]",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/requestRoutingRules/', parameters('applicationGateways_ag_metabase_name'), '_stage_80_rule'))]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 290,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_stage_listener_80'))]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/stage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/metabase_stage_http')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_fc_stage_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_fc_stage_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 300,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_fcstage_listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendAddressPools/stage_backend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/backendHttpSettingsCollection/fc_stage_https')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_fc_stage_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_fc_stage_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 310,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_fcstage_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_fc_stage_80_rule')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ag_retool_stage_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_stage_80_rule')]",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "priority": 320,
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/af_retool_stage_listener_80')]"
+                            },
+                            "redirectConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_retool_stage_80_rule')]"
+                            }
+                        }
+                    }
+                ],
+                "routingRules": [],
+                "probes": [
+                    {
+                        "name": "cc_httpsae1f7144-13d3-4060-93ee-b2aa4c68e09b",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_httpsae1f7144-13d3-4060-93ee-b2aa4c68e09b')]",
+                        "properties": {
+                            "protocol": "Http",
+                            "path": "/",
+                            "interval": 30,
+                            "timeout": 30,
+                            "unhealthyThreshold": 3,
+                            "pickHostNameFromBackendHttpSettings": true,
+                            "minServers": 0,
+                            "match": {
+                                "statusCodes": [
+                                    "200-401"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "cc_401_probe",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/cc_401_probe')]",
+                        "properties": {
+                            "protocol": "Http",
+                            "host": "creditcounter.climatefriendly.com",
+                            "path": "/",
+                            "interval": 30,
+                            "timeout": 30,
+                            "unhealthyThreshold": 3,
+                            "pickHostNameFromBackendHttpSettings": false,
+                            "minServers": 0,
+                            "match": {
+                                "statusCodes": [
+                                    "200-401"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "globe-probe",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/probes/globe-probe')]",
+                        "properties": {
+                            "protocol": "Http",
+                            "host": "10.0.4.4",
+                            "path": "/geoserver",
+                            "interval": 30,
+                            "timeout": 30,
+                            "unhealthyThreshold": 3,
+                            "pickHostNameFromBackendHttpSettings": false,
+                            "minServers": 0,
+                            "match": {}
+                        }
+                    }
+                ],
+                "rewriteRuleSets": [
+                    {
+                        "name": "globe-rewrite",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/rewriteRuleSets/globe-rewrite')]",
+                        "properties": {
+                            "rewriteRules": []
+                        }
+                    }
+                ],
+                "redirectConfigurations": [
+                    {
+                        "name": "ag_crmdev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_crmdev_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_crmdev_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_crmdev_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_crm_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_crm_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ac_crm_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_crm_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_cc_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_cc_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_cc_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_hasura_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_listener_https')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_hasura_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_retool_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_retool_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_listener_https')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_qgis_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_qgis_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_qgis_listener_443')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_qgis_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ac_cc_dev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ac_cc_dev_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_dev_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ac_cc_dev_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "metabase_dev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/metabase_dev_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), concat('/httpListeners/', parameters('applicationGateways_ag_metabase_name'), '_dev_listener'))]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/metabase_dev_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_dev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_hasura_dev_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_dev_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_hasura_dev_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_retool_dev_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_retool_dev_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_dev_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_dev_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_cc_stage_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_cc_stage_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_cc_stage_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_cc_stage_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_hasura_stage_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_hasura_stage_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_hasura_stage')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_hasura_stage_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_fc_stage_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_fc_stage_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_fcstage_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_fc_stage_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_retool_stage_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_retool_stage_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_retool_stage_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_retool_stage_80_rule')]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ag_globe_80_rule",
+                        "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/redirectConfigurations/ag_globe_80_rule')]",
+                        "properties": {
+                            "redirectType": "Permanent",
+                            "targetListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/httpListeners/ag_globe_listener')]"
+                            },
+                            "includePath": true,
+                            "includeQueryString": true,
+                            "requestRoutingRules": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_ag_metabase_name')), '/requestRoutingRules/ag_globe_80_rule')]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "privateLinkConfigurations": [],
+                "webApplicationFirewallConfiguration": {
+                    "enabled": false,
+                    "firewallMode": "Detection",
+                    "ruleSetType": "OWASP",
+                    "ruleSetVersion": "3.1",
+                    "disabledRuleGroups": [],
+                    "exclusions": [],
+                    "requestBodyCheck": true,
+                    "maxRequestBodySizeInKb": 128,
+                    "fileUploadLimitInMb": 100
+                },
+                "enableHttp2": false,
+                "autoscaleConfiguration": {
+                    "minCapacity": 0,
+                    "maxCapacity": 2
+                }
+            }
+        }
+    ]
+}

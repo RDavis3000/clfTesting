@@ -1,0 +1,15 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "applicationGateways_ag_metabase_name": {
+            "value": "agNetGwy"
+        },
+        "virtualNetworks_vn_cfr_azu_externalid": {
+            "value": "clfvn"
+        },
+        "publicIPAddresses_ag_metabase_ip_pub_externalid": {
+            "value": "clfpubip"
+        }
+    }
+}
