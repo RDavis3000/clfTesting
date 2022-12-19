@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vaultName": {
+      "value": "kv-clftest"
+    },
+    "keyName": {
+      "value": "sslkey"
+    },
+    "keyType": {
+      "value": "RSA"
+    },
+    "keySize": {
+      "value": 2048
+    },
+    "curveName": {
+      "value": "P-521"
+    },
+    "vnetName": {
+      "value": "vn-clftest"
+    },
+    "securityGroupName": {
+      "value": "sg-clftest"
+    },
+    "subnetName": {
+      "value": "sn-clftest"
+    },
+    "vmName": {
+      "value": "vm-cftest"
+    },
+    "appGatewayName": {
+      "value": "ag-clftest"
+    },
+    "envName": {
+      "value": "dev"
+    }
+  }
+}
